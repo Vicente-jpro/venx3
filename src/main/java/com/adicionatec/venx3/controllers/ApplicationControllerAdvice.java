@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,12 +13,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.adicionatec.vexceptions.ClienteNotFoundException;
-import com.example.exceptions.DadosInvalidoException;
-import com.example.exceptions.ServicoPrestadoNotFoundException;
-import com.example.exceptions.UsuarioCadastradoException;
-import com.example.exceptions.UsuarioNotFoundException;
-import com.example.utils.ApiErrors;
+import com.adicionatec.venx3.exceptions.ClienteNotFoundException;
+import com.adicionatec.venx3.exceptions.DadosInvalidoException;
+import com.adicionatec.venx3.exceptions.ServicoPrestadoNotFoundException;
+import com.adicionatec.venx3.exceptions.UsuarioCadastradoException;
+import com.adicionatec.venx3.exceptions.UsuarioNotFoundException;
+import com.adicionatec.venx3.utils.ApiErrors;
 
 @RestControllerAdvice
 public class ApplicationControllerAdvice {
@@ -69,7 +70,7 @@ public class ApplicationControllerAdvice {
 	@ExceptionHandler(ResponseStatusException.class)
 	public ResponseEntity ResponseStatusExceptionHandle(ResponseStatusException ex) {
 		String messagemErro = ex.getReason();
-		HttpStatus codigoStatus = ex.getStatus();
+		HttpStatusCode codigoStatus = ex.getStatusCode();
 		ApiErrors apiErrors = new ApiErrors(messagemErro);
 		return new ResponseEntity(apiErrors, codigoStatus);
 

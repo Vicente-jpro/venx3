@@ -9,10 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.example.exceptions.DadosInvalidoException;
-import com.example.exceptions.UsuarioCadastradoException;
-import com.example.models.Usuario;
-import com.example.repositories.UsuarioRepository;
+import com.adicionatec.venx3.exceptions.UsuarioCadastradoException;
+import com.adicionatec.venx3.models.Usuario;
+import com.adicionatec.venx3.repositories.UsuarioRepository;
 
 import lombok.extern.log4j.Log4j2;
 

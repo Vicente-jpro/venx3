@@ -1,11 +1,11 @@
-package com.example.repositories;
+package com.adicionatec.venx3.repositories;
 
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.models.Usuario;
+import com.adicionatec.venx3.models.Usuario;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
