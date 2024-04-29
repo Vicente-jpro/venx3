@@ -1,62 +1,70 @@
 package com.adicionatec.venx3.services;
 
-import java.util.List;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.adicionatec.venx3.exceptions.UsuarioCadastradoException;
+import com.adicionatec.venx3.exceptions.SenhaInvalidaException;
 import com.adicionatec.venx3.models.Usuario;
 import com.adicionatec.venx3.repositories.UsuarioRepository;
+import com.adicionatec.venx3.utils.CurrentUser;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
+@Slf4j
 @Service
 public class UsuarioService implements UserDetailsService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
-    public Usuario save(Usuario usuario) {
-        boolean existe = this.usuarioRepository.existsByEmail(usuario.getEmail());
-        if (existe) {
-            log.error("Este email já se encontra em uso.");
-            throw new UsuarioCadastradoException(usuario.getEmail());
-        }
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
-        return this.usuarioRepository.save(usuario);
-    }
+	public UserDetails autenticar(Usuario usuario) {
+		log.info("Autenticando o usuário de nome :{}", usuario.getUsername());
+		UserDetails userDetails = this.loadUserByUsername(usuario.getUsername());
+		// passwordEncoder.matches(senhaDigitada, senhaGravadaNoBD)
+		boolean senhaCorreta = passwordEncoder.matches(usuario.getSenha(), userDetails.getPassword());
 
-    public List<Usuario> listarTodos() {
-        return this.usuarioRepository.findAll();
-    }
+		if (senhaCorreta) {
 
-    public Usuario findByUsuarioById(Integer idUsuario) {
-        return this.usuarioRepository
-                .findById(idUsuario)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado id invalido: " + idUsuario));
-    }
+			log.info("Usuario altenticado com sucesso.");
+			return userDetails;
+		}
 
-    public Usuario findByUsername(String username) {
-        return this.usuarioRepository
-                .findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Email/Username invalido."));
-    }
+		log.info("Credenciais invalida. Email/Senha não está correta:{}", usuario.getUsername());
+		throw new SenhaInvalidaException("Senha invalida");
+	}
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario usuario = this.findByUsername(username);
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Usuario usuario = usuarioRepository
+				.findByUsername(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-        return User
-                .builder()
-                .username(usuario.getUsername())
-                .password(usuario.getPasswrd())
-                .roles("USER")
-                .build();
-    }
+		String[] usuarioRoles = usuario.isAdmin() ? new String[] { "ADMIN", "USER" } : new String[] { "USER" };
+
+		UserDetails user = User
+				.builder()
+				.username(usuario.getUsername())
+				.password(usuario.getSenha())
+				.roles(usuarioRoles)
+				.build();
+
+		return new CurrentUser(user, usuario);
+	}
+
+
+	@Transactional
+	public Usuario save(Usuario usuario) {
+		return this.usuarioRepository.save(usuario);
+	}
+
 }

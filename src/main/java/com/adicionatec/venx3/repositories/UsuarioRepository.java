@@ -8,9 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.adicionatec.venx3.models.Usuario;
 
 @Repository
-public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
-    Optional<Usuario> findByUsername(String username);
-
-    boolean existsByEmail(String email);
-
+public interface UsuarioRepository extends JpaRepository<Usuario, Integer>{
+	Optional<Usuario> findByUsername(String username);
 }
